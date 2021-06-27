@@ -1,0 +1,53 @@
+# Visualización de datos: Registro de primates C.R.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Preparativos
+```{r message = FALSE}
+# Carga de paquetes
+library(dplyr)
+library(sf)
+library(DT)
+library(plotly)
+library(leaflet)
+library(raster)
+library(spData)
+```
+```{r message = FALSE}
+# Carga de datos
+Primates<-
+  st_read("https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2021i-datos/main/gbif/primates-cr-registros.csv",
+    options = c(
+      "X_POSSIBLE_NAMES=decimalLongitude",
+      "Y_POSSIBLE_NAMES=decimalLatitude"
+    ),
+    quiet = TRUE
+  )
+
+# Asignación del sistema de coordenadas
+st_crs(Primates)<-4326
+```
+
+```{r}
+# Capa geoespacial de cantones
+cantones <-
+  st_read(
+    "https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2021i-datos/main/ign/delimitacion-territorial-administrativa/cr_cantones_simp_wgs84.geojson",
+    quiet = TRUE
+  )
+# Capa de provincias
+provincias <-
+  st_read(
+    "https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2021i-datos/main/ign/delimitacion-territorial-administrativa/cr_provincias_simp_wgs84.geojson",
+    quiet = TRUE
+  )
+```
+
+```{r cruce datos}
+# Cruce espacial con la tabla de cantones, para obtener el nombre del cantón
+Primates <- 
+  Primates %>% 
+  st_join (cantones["canton"])
+```
