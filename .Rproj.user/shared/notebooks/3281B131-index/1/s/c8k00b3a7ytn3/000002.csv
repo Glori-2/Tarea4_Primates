@@ -1,0 +1,4 @@
+"0","# Cruce espacial con la tabla de cantones, para obtener el nombre del cantón"
+"0","Primates <- "
+"0","  Primates %>% "
+"0","  st_join (cantones[""canton""])"
