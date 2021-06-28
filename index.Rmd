@@ -1,4 +1,4 @@
-# Visualización de datos: Registro de primates C.R.
+# Visualización de datos: Registro de primates en Costa Rica
 
 
 ```{r setup, include=FALSE}
@@ -6,6 +6,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Preparativos
+
 ```{r message = FALSE}
 # Carga de paquetes
 library(dplyr)
@@ -16,6 +17,8 @@ library(leaflet)
 library(raster)
 library(spData)
 ```
+
+# Carga de datos
 
 ```{r message = FALSE}
 # Carga de datos
@@ -48,9 +51,8 @@ Primates <-
   st_join (cantones["canton"])
 ```
 
-# Introducción
-
 # Tabla de registros de presencia
+
 ```{r tabla-registros}
 Primates %>%
   st_drop_geometry() %>%
@@ -64,7 +66,9 @@ Primates %>%
     )
   )
 ```
-# Gráfico pastel de los registros de especies de primates en C.R
+
+# Gráfico pastel de los registros de especies de primates en Costa Rica
+
 ```{r grafico-pastel}
 Grafi_pie <- data.frame("categorie"=rownames(Primates), Primates)
 datos <- Grafi_pie[,c('categorie', 'species', 'individualCount')]
@@ -121,7 +125,7 @@ Colors<- colorNumeric(c("green", "yellow", "pink"),
 ```
 
 
-# Mapa de distribución
+# Mapa de distribución de primates
 
 ```{r mapa-distribución, message = FALSE,  warning = FALSE}
 # Mapa de registros de presencia
