@@ -1,5 +1,6 @@
 # Visualización de datos: Registro de primates C.R.
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -14,7 +15,6 @@ library(plotly)
 library(leaflet)
 library(raster)
 library(spData)
-library(lessR)
 ```
 
 ```{r message = FALSE}
@@ -79,7 +79,9 @@ plot_ly(datos, labels = ~species,
       language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')))
 ```
 
+
 # Creación de capas
+
 ```{r caspas-para-mapa}
 # Especie de monos ardillas (Saimiri oerstedii)
 Mono_ardi<-
@@ -102,7 +104,7 @@ Mono_arañ<-
   filter(species == "Ateles geoffroyi")
 
 # Obtención de la capa de altitud
-alt <- getData(
+alt<- getData(
   "worldclim",
   var = "alt",
   res = .5,
@@ -113,8 +115,123 @@ alt <- getData(
 # Recorte de la capa de altitud
 altitud <-crop(alt, extent(-86,-82.3, 8, 11.3)) 
 
-Cl<- colorNumeric(c("green", "yellow", "blue"),
+Colors<- colorNumeric(c("green", "yellow", "pink"),
                      values(altitud),
                      na.color = "transparent")
+```
+
+
+# Mapa de distribución
+
+```{r mapa-distribución, message = FALSE,  warning = FALSE}
+# Mapa de registros de presencia
+Primates %>%
+  dplyr::select(stateProvince,
+         family,
+         canton,
+         species,
+         basisOfRecord,
+         scientificName,
+         eventDate,
+         decimalLongitude,
+         decimalLatitude) %>%
+  leaflet() %>%
+  addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
+  addProviderTiles(providers$Stamen.TonerLite, group = "Stamen Toner Lite") %>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Imágenes de ESRI") %>%
+  addRasterImage(
+    altitud,
+    colors = Colors,
+    opacity = 0.5,
+    group = "altitud")%>%
+  addCircleMarkers(
+    data = Mono_aullad,
+    stroke = F,
+    radius = 2,
+    fillColor = "red",
+    fillOpacity = 0.5,
+    popup = paste(
+      Primates$stateProvince,
+      Primates$family,
+      Primates$canton,
+      Primates$species,
+      Primates$basisOfRecord,
+      Primates$scientificName,
+      Primates$eventDate,
+      Primates$decimalLongitude,
+      Primates$decimalLatitude,
+      sep = '<br/>'
+    ),
+    group = "Mono_aullad"
+)%>%
+    addCircleMarkers(
+    data = Mono_ardi,
+    stroke = F,
+    radius = 2,
+    fillColor = "orange",
+    fillOpacity = 0.5,
+    popup = paste(
+      Primates$stateProvince,
+      Primates$family,
+      Primates$canton,
+      Primates$species,
+      Primates$basisOfRecord,
+      Primates$scientificName,
+      Primates$eventDate,
+      Primates$decimalLongitude,
+      Primates$decimalLatitude,
+      sep = '<br/>'
+    ),
+    group = "Mono_ardi"
+)%>%
+    addCircleMarkers(
+    data = Mono_arañ,
+    stroke = F,
+    radius = 2,
+    fillColor = "blue",
+    fillOpacity = 0.5,
+    popup = paste(
+      Primates$stateProvince,
+      Primates$family,
+      Primates$canton,
+      Primates$species,
+      Primates$basisOfRecord,
+      Primates$scientificName,
+      Primates$eventDate,
+      Primates$decimalLongitude,
+      Primates$decimalLatitude,
+      sep = '<br/>'
+    ),
+    group = "Mono_arañ"
+)%>%
+  addCircleMarkers(
+    data = Mono_capuch,
+    stroke = F,
+    radius = 2,
+    fillColor = "black",
+    fillOpacity = 0.5,
+    popup = paste(
+      Primates$stateProvince,
+      Primates$family,
+      Primates$canton,
+      Primates$species,
+      Primates$basisOfRecord,
+      Primates$scientificName,
+      Primates$eventDate,
+      Primates$decimalLongitude,
+      Primates$decimalLatitude,
+      sep = '<br/>'
+    ),
+    group = "Mono_capuch")%>%
+    
+  addLayersControl(
+    baseGroups = c("OpenStreetMap", "Stamen Toner Lite", "Imágenes de ESRI"),
+    overlayGroups = c("altitud", "Mono_aullad", "Mono_ardi", "Mono_arañ", "Mono_capuch")
+  ) %>%
+  addMiniMap(
+    tiles = providers$Stamen.OpenStreetMap.Mapnik,
+    position = "bottomleft",
+    toggleDisplay = TRUE
+  )
 ```
 
