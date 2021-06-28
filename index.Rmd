@@ -14,6 +14,7 @@ library(plotly)
 library(leaflet)
 library(raster)
 library(spData)
+library(lessR)
 ```
 
 ```{r message = FALSE}
@@ -49,17 +50,71 @@ Primates <-
 
 # Introducción
 
-
-```{r tabla-registros}
 # Tabla de registros de presencia
-Primates%>%
+```{r tabla-registros}
+Primates %>%
   st_drop_geometry() %>%
   dplyr::select(family, species, stateProvince, canton, eventDate) %>%
-  datatable(colnames = c("Familia", "Especies", "Provincia", "Cantón","Fecha"),
+  datatable(
+    colnames = c("Familia", "Especies", "Provincia", "Cantón", "Fecha"),
     options = list(
       searchHighlight = TRUE,
-      pageLength=5,
-      language=list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
-    ))
+      pageLength = 5,
+      language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
+    )
+  )
+```
+# Gráfico pastel de los registros de especies de primates en C.R
+```{r grafico-pastel}
+Grafi_pie <- data.frame("categorie"=rownames(Primates), Primates)
+datos <- Grafi_pie[,c('categorie', 'species', 'individualCount')]
+plot_ly(datos, labels = ~species, 
+        values = ~individualCount, 
+        type = 'pie'
+)%>% 
+        layout(title ="Registro de especies de primates y su porcentaje",
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE), 
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         list(pieLength = 5,
+      language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')))
+```
+
+# Creación de capas
+```{r caspas-para-mapa}
+# Especie de monos ardillas (Saimiri oerstedii)
+Mono_ardi<-
+  Primates%>%
+  filter(species == "Saimiri oerstedii")
+
+# Especie de monos aulladores (Alouatta palliata)
+Mono_aullad<-
+  Primates%>%
+  filter(species == "Alouatta palliata")
+
+# Especie de monos capuchinos (Cebus capucinus)
+Mono_capuch<-
+  Primates%>%
+  filter(species == "Cebus capucinus")
+
+# Especie de monos arañas (Ateles geoffroyi)
+Mono_arañ<-
+  Primates%>%
+  filter(species == "Ateles geoffroyi")
+
+# Obtención de la capa de altitud
+alt <- getData(
+  "worldclim",
+  var = "alt",
+  res = .5,
+  lon = -84,
+  lat = 10
+)
+
+# Recorte de la capa de altitud
+altitud <-crop(alt, extent(-86,-82.3, 8, 11.3)) 
+
+Cl<- colorNumeric(c("green", "yellow", "blue"),
+                     values(altitud),
+                     na.color = "transparent")
 ```
 
